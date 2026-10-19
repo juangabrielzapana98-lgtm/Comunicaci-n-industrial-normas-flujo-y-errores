@@ -1,0 +1,865 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Comunicación industrial ELE329</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: banda de tablero con franja de seguridad; secciones apiladas con un laboratorio interactivo en cada tema. */
+:root{
+  --bg:#E8F0F2; --surface:#FFFFFF; --surface-2:#F0F6F7; --ink:#0D1C22; --muted:#48616A;
+  --line:#CADAE0; --line-strong:#92AAB3; --off:#A2B5BC;
+  --accent:#008EA0; --accent-ink:#FFFFFF; --hflow:#00B4D4; --vflow:#8B5CF6;
+  --ok:#119A4C; --ok-bg:#DBF4E4; --warn:#D98200; --warn-bg:#FFF0D4; --fail:#E3363A; --fail-bg:#FDE1E1;
+  --band:#0A2A33; --band-ink:#EAF6F8; --band-muted:#94C0CA; --band-line:#22505C; --safety:#FFC400; --safety-2:#15191B;
+  --display:"Barlow Condensed","Arial Narrow",Arial,sans-serif;
+  --body:"Barlow","Segoe UI",Arial,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#091317; --surface:#101D22; --surface-2:#14242A; --ink:#E3F0F3; --muted:#92ADB5;
+    --line:#21353C; --line-strong:#3B555E; --off:#4B636B;
+    --accent:#22C3D6; --accent-ink:#04252B; --hflow:#22D3EE; --vflow:#A78BFA;
+    --ok:#3EE07F; --ok-bg:#0F3422; --warn:#FFB938; --warn-bg:#3A2A0C; --fail:#FF6262; --fail-bg:#3D1517;
+    --band:#05181E; --band-ink:#EAF6F8; --band-muted:#8DB7C0; --band-line:#1C4550; --safety:#FFC400; --safety-2:#0B0E0F;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#091317; --surface:#101D22; --surface-2:#14242A; --ink:#E3F0F3; --muted:#92ADB5;
+  --line:#21353C; --line-strong:#3B555E; --off:#4B636B;
+  --accent:#22C3D6; --accent-ink:#04252B; --hflow:#22D3EE; --vflow:#A78BFA;
+  --ok:#3EE07F; --ok-bg:#0F3422; --warn:#FFB938; --warn-bg:#3A2A0C; --fail:#FF6262; --fail-bg:#3D1517;
+  --band:#05181E; --band-ink:#EAF6F8; --band-muted:#8DB7C0; --band-line:#1C4550; --safety:#FFC400; --safety-2:#0B0E0F;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55}
+.wrap{max-width:1140px;margin:0 auto;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px))}
+h1,h2,h3{text-wrap:balance;margin:0}
+p{margin:0}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.09em;text-transform:uppercase;color:var(--accent)}
+.mono{font-family:var(--mono)}
+
+.band{background:var(--band);color:var(--band-ink)}
+.band .wrap{padding-block:34px 26px;display:grid;gap:14px}
+.band .eyebrow{color:var(--safety)}
+h1{font-family:var(--display);font-weight:700;font-size:clamp(2.3rem,6vw,3.8rem);line-height:.98;letter-spacing:.01em}
+.lead{max-width:62ch;color:var(--band-muted);font-size:1.06rem}
+.nav{list-style:none;margin:2px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:8px}
+.nav a{display:inline-flex;align-items:center;gap:7px;font-size:14px;font-weight:500;padding:6px 12px;border:1px solid var(--band-line);border-radius:999px;background:rgba(255,255,255,.04);color:var(--band-ink);text-decoration:none}
+.nav a:hover{border-color:var(--safety)}
+.plate{margin:6px 0 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));border:1px solid var(--band-line);border-radius:8px;background:rgba(255,255,255,.035)}
+.plate div{padding:11px 16px;border-right:1px solid var(--band-line);border-bottom:1px solid var(--band-line);min-width:0}
+.plate dt{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--band-muted)}
+.plate dd{margin:2px 0 0;font-weight:600}
+dl{margin:0}
+.stripe{height:10px;background:repeating-linear-gradient(-45deg,var(--safety) 0 14px,var(--safety-2) 14px 28px);background-size:40px 40px}
+
+section{padding-block:44px 6px;scroll-margin-top:12px}
+.sec-head{display:grid;gap:6px;margin-bottom:18px}
+h2{font-family:var(--display);font-weight:700;font-size:2.2rem;line-height:1.02}
+h3{font-size:1.08rem;font-weight:600}
+.hint{color:var(--muted);max-width:72ch}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px}
+.pad{padding:16px}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.svgbox{overflow-x:auto}
+.svgbox svg{display:block;width:100%;height:auto}
+svg text{font-family:var(--body);fill:var(--ink)}
+svg .sm{font-size:12px;fill:var(--muted)}
+svg .b{font-weight:600;font-size:14px}
+.btn{font:600 14.5px/1 var(--body);padding:10px 14px;border-radius:8px;border:1px solid var(--line-strong);background:var(--surface);color:var(--ink);cursor:pointer}
+.btn:hover{border-color:var(--accent)}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.danger{background:var(--fail-bg);border-color:var(--fail);color:var(--fail)}
+.btn[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+button:focus-visible,a:focus-visible,input:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.pill{font-family:var(--mono);font-size:12px;padding:2px 9px;border-radius:999px;border:1px solid currentColor;white-space:nowrap}
+.pill.ok{color:var(--ok)} .pill.bad{color:var(--fail)} .pill.warn{color:var(--warn)} .pill.mute{color:var(--muted)}
+.msg{padding:10px 14px;border-radius:8px;background:var(--surface-2);border:1px solid var(--line);font-weight:500}
+.msg.ok{background:var(--ok-bg);border-color:var(--ok)} .msg.bad{background:var(--fail-bg);border-color:var(--fail)} .msg.warn{background:var(--warn-bg);border-color:var(--warn)}
+
+/* 1 */
+.intro{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);gap:16px;align-items:start}
+.fin{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px}
+.fin li{font-size:14.5px;font-weight:500;padding:6px 12px;border-radius:8px;background:var(--surface-2);border:1px solid var(--line)}
+.nd rect{fill:var(--surface);stroke:var(--accent);stroke-width:1.6}
+.hub rect{fill:var(--accent);stroke:var(--accent)}
+.hub text{fill:var(--accent-ink)!important;font-weight:600}
+.nlink .w{stroke:var(--line-strong);stroke-width:4;stroke-linecap:round}
+.nlink .f{stroke:var(--hflow);stroke-width:4;stroke-linecap:round;stroke-dasharray:1 19}
+#net.iso .nlink{opacity:0}
+#net.iso .hub{opacity:.18}
+#net.iso .nd rect{stroke:var(--off);stroke-dasharray:5 4}
+#net .nlink,#net .hub{transition:opacity .4s}
+
+/* 2 */
+.ctl rect{fill:var(--surface);stroke:var(--accent);stroke-width:1.8}
+.ctl.dead rect{fill:var(--fail-bg);stroke:var(--fail)}
+.ctl.dead text{fill:var(--fail)}
+.mc circle{fill:var(--ok-bg);stroke:var(--ok);stroke-width:1.6}
+.mc .sp{stroke:var(--ok);stroke-width:2.4;stroke-linecap:round;transform-box:fill-box;transform-origin:center}
+.mc.stop circle{fill:var(--surface-2);stroke:var(--off)}
+.mc.stop .sp{stroke:var(--off)}
+.wire{stroke:var(--line-strong);stroke-width:1.6}
+.wire.dead{stroke:var(--fail);stroke-dasharray:5 4}
+.bus{stroke:var(--hflow);stroke-width:4;stroke-linecap:round}
+.busf{stroke:var(--surface);stroke-width:2;stroke-dasharray:2 14}
+.feat{margin:0;padding-left:1.1em;display:grid;gap:4px;font-size:15px}
+
+/* 3 */
+.defs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-bottom:22px}
+.def{padding:16px;display:grid;gap:6px}
+.def .tag{font-family:var(--display);font-weight:700;font-size:1.7rem;line-height:1}
+.def.facto .tag{color:var(--warn)} .def.iure .tag{color:var(--accent)}
+.orgs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-bottom:22px}
+.org-col{padding:14px;display:grid;gap:10px;align-content:start}
+.org-col h3{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:500}
+.org{display:grid;grid-template-columns:7rem minmax(0,1fr);gap:10px;align-items:start;padding-top:10px;border-top:1px solid var(--line)}
+.org b{font-family:var(--display);font-size:1.35rem;line-height:1.05;color:var(--accent)}
+.org span{font-size:14.5px}
+.org small{display:block;color:var(--muted);font-size:12.5px}
+.filters{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;align-items:center}
+.filters input{font:15px var(--body);padding:9px 12px;border-radius:8px;border:1px solid var(--line-strong);background:var(--surface);color:var(--ink);min-width:0;flex:1 1 200px}
+.tbl{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:14.5px}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:500;background:var(--surface-2)}
+tr:last-child td{border-bottom:0}
+td.n{font-family:var(--mono);font-weight:500;white-space:nowrap}
+.cat{font-family:var(--mono);font-size:11.5px;padding:2px 7px;border-radius:4px;border:1px solid var(--line-strong);color:var(--muted);white-space:nowrap}
+.cat.serial{color:var(--hflow);border-color:var(--hflow)} .cat.redes{color:var(--vflow);border-color:var(--vflow)} .cat.cableado{color:var(--warn);border-color:var(--warn)} .cat.industrial{color:var(--ok);border-color:var(--ok)} .cat.seguridad{color:var(--fail);border-color:var(--fail)}
+
+/* 4 */
+.lab{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(260px,1fr);gap:16px;align-items:start}
+.seg{display:inline-flex;border:1px solid var(--line-strong);border-radius:8px;overflow:hidden;flex-wrap:wrap}
+.seg button{font:600 14px/1 var(--body);padding:10px 12px;border:0;background:var(--surface);color:var(--ink);cursor:pointer;border-right:1px solid var(--line-strong)}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.buf{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:4px}
+.buf i{height:22px;border-radius:4px;background:var(--surface-2);border:1px solid var(--line)}
+.buf i.on{background:var(--hflow);border-color:var(--hflow)}
+.buf.hi i.on{background:var(--warn);border-color:var(--warn)}
+.buf.full i.on{background:var(--fail);border-color:var(--fail)}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.stat{padding:10px;border-radius:8px;background:var(--surface-2);border:1px solid var(--line);display:grid}
+.stat span{font-size:13px;color:var(--muted)}
+.stat b{font-family:var(--display);font-size:2rem;line-height:1;font-variant-numeric:tabular-nums}
+.stat.lost b{color:var(--fail)}
+.slider{display:grid;gap:4px;font-size:14px}
+.slider input{width:100%}
+.dev rect{fill:var(--surface);stroke:var(--accent);stroke-width:1.8}
+.chan{stroke:var(--line-strong);stroke-width:3}
+.pk{fill:var(--hflow)}
+.cm rect{fill:var(--vflow)} .cm text{fill:#FFFFFF;font-size:11px;font-weight:600;font-family:var(--mono)}
+.lostx{stroke:var(--fail);stroke-width:3;stroke-linecap:round}
+.hwl{stroke:var(--line-strong);stroke-width:2;stroke-dasharray:5 4}
+.lamp{stroke:var(--surface);stroke-width:1.5}
+.lamp.on{fill:var(--ok)} .lamp.off{fill:var(--fail)}
+
+/* 5 */
+.bits{display:flex;flex-wrap:wrap;gap:4px;align-items:center}
+.bit{width:30px;height:34px;border-radius:6px;border:1px solid var(--line-strong);background:var(--surface-2);font:500 16px var(--mono);color:var(--ink);display:inline-grid;place-items:center;font-variant-numeric:tabular-nums}
+button.bit{cursor:pointer}
+button.bit:hover{border-color:var(--accent)}
+.bit.one{background:var(--ok-bg);border-color:var(--ok);color:var(--ok)}
+.bit.flip{background:var(--fail-bg);border-color:var(--fail);color:var(--fail);box-shadow:0 0 0 2px var(--fail)}
+.bit.ctrl{background:var(--surface);border-style:dashed}
+.gap{width:10px}
+.flabel{font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:6px 0 4px}
+.frame{display:grid;gap:4px}
+.chk{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.chk div{padding:10px;border-radius:8px;background:var(--surface-2);border:1px solid var(--line)}
+.chk span{display:block;font-size:13px;color:var(--muted)}
+.chk b{font-family:var(--mono);font-size:15px}
+
+/* 6 */
+.qs{display:grid;gap:8px}
+details{border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+summary{cursor:pointer;padding:12px 16px;font-weight:600;list-style:none;display:grid;grid-template-columns:2.2rem minmax(0,1fr);gap:8px}
+summary::-webkit-details-marker{display:none}
+summary .qn{font-family:var(--mono);color:var(--accent)}
+details[open] summary{border-bottom:1px solid var(--line)}
+details .ans{padding:12px 16px 14px 3.2rem;color:var(--ink)}
+footer{margin-top:48px;background:var(--band);color:var(--band-muted)}
+footer .wrap{padding-block:20px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;font-size:14px}
+
+/* Caso práctico */
+.lgd{display:inline-flex;flex-wrap:wrap;gap:4px 14px;font-size:13px;color:var(--muted)}
+.lgd span{display:inline-flex;align-items:center;gap:6px}
+.lgi{display:inline-block;width:18px;height:3px;border-radius:2px}
+.tank{fill:none;stroke:var(--line-strong);stroke-width:2.5}
+.water{fill:var(--hflow);opacity:.55}
+.thr{stroke:var(--muted);stroke-width:1;stroke-dasharray:4 4}
+.pipe line,.pipe1{stroke:var(--line-strong);stroke-width:6;stroke-linecap:round}
+.rs{stroke:var(--hflow);stroke-width:3.5}
+.pwr,.pwr2{stroke:var(--warn);stroke-width:5;stroke-linecap:round}
+.ctlw{stroke:var(--line-strong);stroke-width:1.6;stroke-dasharray:5 4}
+.eth{stroke:var(--vflow);stroke-width:3.5}
+.spk{stroke:var(--fail);stroke-width:2;fill:none}
+.pump circle{fill:var(--surface-2);stroke:var(--off);stroke-width:2}
+.pump .bl{stroke:var(--off);stroke-width:2.5;stroke-linecap:round;transform-box:fill-box;transform-origin:center}
+.pump.on circle{fill:var(--ok-bg);stroke:var(--ok)}
+.pump.on .bl{stroke:var(--ok)}
+.scr rect{fill:#0A191E;stroke:var(--line-strong)}
+.scr text.st{fill:#9FC3CC;font-size:12px;font-family:var(--mono)}
+.scr text.big{fill:#3EF08A;font-size:30px;font-weight:700;font-family:var(--display)}
+.scr text.al{fill:#FF7A6A;font-size:12px;font-family:var(--mono)}
+.fr rect{stroke:none}
+.fr.good rect{fill:var(--ok)} .fr.bad rect{fill:var(--fail)}
+.fr text{fill:#FFFFFF;font:600 10.5px var(--mono)}
+.clog{list-style:none;margin:0;padding:0;display:grid;gap:4px;font-size:13.5px;max-height:220px;overflow:auto}
+.clog li{display:grid;grid-template-columns:auto auto minmax(0,1fr);gap:8px;align-items:center}
+.clog time{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.clog .k{width:8px;height:8px;border-radius:50%;background:var(--off)}
+.clog .k.ok{background:var(--ok)} .clog .k.warn{background:var(--warn)} .clog .k.bad{background:var(--fail)} .clog .k.info{background:var(--hflow)}
+@media (prefers-reduced-motion: no-preference){
+  .pump.on .bl{animation:rot .6s linear infinite}
+}
+@media (prefers-reduced-motion: no-preference){
+  .stripe{animation:march 1.6s linear infinite}
+  @keyframes march{to{background-position:40px 0}}
+  #net:not(.iso) .nlink .f{animation:flow 1s linear infinite}
+  @keyframes flow{to{stroke-dashoffset:-20}}
+  .mc:not(.stop) .sp{animation:rot 1.1s linear infinite}
+  @keyframes rot{to{transform:rotate(360deg)}}
+  .busf{animation:flow 1.2s linear infinite}
+  html{scroll-behavior:smooth}
+}
+@media (max-width:900px){ .intro,.lab,.grid2,.defs{grid-template-columns:minmax(0,1fr)} .orgs{grid-template-columns:minmax(0,1fr)} }
+@media (max-width:420px){ .stats,.chk{grid-template-columns:minmax(0,1fr)} .bit{width:26px} }
+</style>
+</head>
+<body>
+
+<header class="band">
+  <div class="wrap">
+    <div class="eyebrow">ELE329 · Redes Industriales (e) · Semana 2</div>
+    <h1>Comunicación industrial: normas, flujo y errores</h1>
+    <p class="lead">Cómo se conectan los equipos de una planta, qué normas los hacen compatibles y cómo se evita que los datos se pierdan o lleguen alterados. Cada tema tiene un laboratorio para probarlo.</p>
+    <ul class="nav">
+      <li><a href="#comunicacion">Sistemas de comunicación</a></li>
+      <li><a href="#control">Centralizado y distribuido</a></li>
+      <li><a href="#normas">Normas</a></li>
+      <li><a href="#flujo">Control de flujo</a></li>
+      <li><a href="#errores">Control de errores</a></li>
+      <li><a href="#caso">Caso práctico</a></li>
+      <li><a href="#taller">Taller N.° 01</a></li>
+    </ul>
+    <dl class="plate">
+      <div><dt>Alumno</dt><dd>Juan Gabriel Zapana Suaña</dd></div>
+      <div><dt>Docente</dt><dd>M. Sc. Susan Machaca Condori</dd></div>
+      <div><dt>Curso</dt><dd>ELE329 · Redes Industriales (e)</dd></div>
+      <div><dt>Universidad</dt><dd>Universidad Nacional del Altiplano – Puno</dd></div>
+    </dl>
+  </div>
+  <div class="stripe" aria-hidden="true"></div>
+</header>
+
+<main class="wrap">
+
+  <section id="comunicacion">
+    <div class="sec-head"><div class="eyebrow">Tema 1</div><h2>Sistemas de comunicación</h2>
+      <p class="hint">Una planta moderna pasa de tener equipos aislados a un sistema interconectado, donde sensores, actuadores, PLC, variadores, HMI y SCADA comparten datos.</p></div>
+    <div class="intro">
+      <div class="card pad" style="display:grid;gap:12px">
+        <h3>Para qué sirve</h3>
+        <ul class="fin">
+          <li>Adquirir información del proceso</li>
+          <li>Intercambiar datos entre controladores</li>
+          <li>Enviar órdenes a actuadores</li>
+          <li>Supervisar el proceso</li>
+          <li>Diagnosticar equipos</li>
+          <li>Configurar de forma remota</li>
+          <li>Coordinar máquinas</li>
+        </ul>
+        <div class="row"><button id="bNet" class="btn pri" type="button">Ver equipos aislados</button><span id="netState" class="pill ok">Sistema interconectado</span></div>
+      </div>
+      <div class="card pad svgbox">
+        <svg id="net" viewBox="0 0 520 300" role="img" aria-label="Equipos de una planta conectados a una red industrial">
+          <g class="nlink"><line class="w" x1="135" y1="60" x2="200" y2="150"/><line class="f" x1="135" y1="60" x2="200" y2="150"/></g>
+          <g class="nlink"><line class="w" x1="260" y1="58" x2="260" y2="130"/><line class="f" x1="260" y1="58" x2="260" y2="130"/></g>
+          <g class="nlink"><line class="w" x1="385" y1="60" x2="320" y2="150"/><line class="f" x1="385" y1="60" x2="320" y2="150"/></g>
+          <g class="nlink"><line class="w" x1="135" y1="240" x2="200" y2="150"/><line class="f" x1="135" y1="240" x2="200" y2="150"/></g>
+          <g class="nlink"><line class="w" x1="260" y1="244" x2="260" y2="170"/><line class="f" x1="260" y1="244" x2="260" y2="170"/></g>
+          <g class="nlink"><line class="w" x1="385" y1="240" x2="320" y2="150"/><line class="f" x1="385" y1="240" x2="320" y2="150"/></g>
+          <g class="hub"><rect x="195" y="130" width="130" height="40" rx="8"/><text x="260" y="155" text-anchor="middle">Red industrial</text></g>
+          <g class="nd"><rect x="25" y="42" width="110" height="36" rx="8"/><text class="b" x="80" y="65" text-anchor="middle">Sensor</text></g>
+          <g class="nd"><rect x="205" y="22" width="110" height="36" rx="8"/><text class="b" x="260" y="45" text-anchor="middle">PLC</text></g>
+          <g class="nd"><rect x="385" y="42" width="110" height="36" rx="8"/><text class="b" x="440" y="65" text-anchor="middle">HMI</text></g>
+          <g class="nd"><rect x="25" y="222" width="110" height="36" rx="8"/><text class="b" x="80" y="245" text-anchor="middle">Actuador</text></g>
+          <g class="nd"><rect x="205" y="244" width="110" height="36" rx="8"/><text class="b" x="260" y="267" text-anchor="middle">Variador</text></g>
+          <g class="nd"><rect x="385" y="222" width="110" height="36" rx="8"/><text class="b" x="440" y="245" text-anchor="middle">SCADA</text></g>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <section id="control">
+    <div class="sec-head"><div class="eyebrow">Tema 2</div><h2>Control centralizado y distribuido</h2>
+      <p class="hint">Provoca la falla de un controlador en cada sistema y compara cuántas máquinas se detienen.</p></div>
+    <div class="grid2">
+      <div class="card pad" style="display:grid;gap:12px">
+        <div class="row" style="justify-content:space-between"><h3>Sistema centralizado</h3><span id="stC" class="pill ok">6 de 6 en marcha</span></div>
+        <div class="svgbox"><svg viewBox="0 0 360 220" role="img" aria-label="Un solo controlador maneja seis máquinas" id="svgC"></svg></div>
+        <button id="bC" class="btn danger" type="button">Fallar el controlador</button>
+        <ul class="feat">
+          <li>Un solo sistema realiza el control.</li>
+          <li>Efectivo si el sistema no es muy grande ni complejo.</li>
+          <li>Fácil de mantener y sin problemas de compatibilidad.</li>
+          <li>Muy delicado a los fallos: si el controlador falla, todo se detiene.</li>
+        </ul>
+      </div>
+      <div class="card pad" style="display:grid;gap:12px">
+        <div class="row" style="justify-content:space-between"><h3>Sistema distribuido</h3><span id="stD" class="pill ok">6 de 6 en marcha</span></div>
+        <div class="svgbox"><svg viewBox="0 0 360 220" role="img" aria-label="Tres controladores en red manejan dos máquinas cada uno" id="svgD"></svg></div>
+        <button id="bD" class="btn danger" type="button">Fallar el controlador 2</button>
+        <ul class="feat">
+          <li>Para sistemas grandes o complejos: el control se reparte entre varios controladores.</li>
+          <li>Todos se comunican a través de una red.</li>
+          <li>Más flexible: se amplía añadiendo módulos u otros controladores.</li>
+          <li>Integra dispositivos de distintos fabricantes que se comunican entre sí.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="normas">
+    <div class="sec-head"><div class="eyebrow">Tema 3</div><h2>Normas y organismos</h2>
+      <p class="hint">Gracias a las normas, los equipos de distintos fabricantes son cada vez más compatibles entre sí.</p></div>
+    <div class="defs">
+      <div class="card def facto"><span class="tag">De facto</span><p>Nacen de sistemas creados por grandes empresas que terminan imponiéndose en el mercado. Se generan solas y acaban aceptándose.</p></div>
+      <div class="card def iure"><span class="tag">De iure</span><p>Las promulga una organización o institución: gobiernos nacionales u organismos nacionales e internacionales de normalización.</p></div>
+    </div>
+    <div class="orgs">
+      <div class="card org-col"><h3>Internacionales</h3>
+        <div class="org"><b>ISO</b><span>Genera normas para todas las áreas y coordina las de organizaciones regionales.<small>International Standards Organization</small></span></div>
+        <div class="org"><b>IEC</b><span>Elabora normas para el área eléctrica.<small>International Electrotechnical Commission</small></span></div>
+        <div class="org"><b>ITU / UIT</b><span>Más de 150 países. Regula el uso del espectro radioeléctrico. Sectores ITU-T (telecomunicaciones), ITU-R (radiocomunicación) e ITU-D (desarrollo).<small>International Telecommunication Union</small></span></div>
+      </div>
+      <div class="card org-col"><h3>Europeos</h3>
+        <div class="org"><b>CEN</b><span>Genera las normas EN de nivel europeo.<small>Comité Européen de Normalisation</small></span></div>
+        <div class="org"><b>CENELEC</b><span>Rama del CEN para el ámbito electrotécnico.<small>Comité Européen de Normalisation Electrotechnique</small></span></div>
+        <div class="org"><b>ETSI</b><span>Creada a instancia de los operadores (PTT) y de la actual Unión Europea.<small>European Telecommunications Standards Institute</small></span></div>
+      </div>
+      <div class="card org-col"><h3>Estados Unidos</h3>
+        <div class="org"><b>ANSI</b><span>Normas estándar para todas las disciplinas.<small>American National Standards Institute</small></span></div>
+        <div class="org"><b>EIA</b><span>Industrias de electrónica; estándares de transmisión de señales eléctricas, como RS-232.<small>Electronics Industries Association</small></span></div>
+        <div class="org"><b>TIA</b><span>Agrupa a fabricantes de equipos de telecomunicaciones.<small>Telecommunications Industries Association</small></span></div>
+        <div class="org"><b>IEEE</b><span>Sus recomendaciones sobre comunicaciones y redes terminaron siendo normas de facto.<small>Institute of Electrical and Electronic Engineers</small></span></div>
+      </div>
+    </div>
+    <h3 style="margin-bottom:10px">Normas que afectan a las comunicaciones</h3>
+    <div class="filters" id="filters">
+      <button class="btn" type="button" data-f="todas" aria-pressed="true">Todas</button>
+      <button class="btn" type="button" data-f="serial" aria-pressed="false">Serial</button>
+      <button class="btn" type="button" data-f="redes" aria-pressed="false">Redes</button>
+      <button class="btn" type="button" data-f="cableado" aria-pressed="false">Cableado</button>
+      <button class="btn" type="button" data-f="industrial" aria-pressed="false">Industrial</button>
+      <button class="btn" type="button" data-f="seguridad" aria-pressed="false">Seguridad</button>
+      <button class="btn" type="button" data-f="otras" aria-pressed="false">Otras</button>
+      <input id="q" type="search" placeholder="Buscar norma o ejemplo" aria-label="Buscar norma o ejemplo">
+    </div>
+    <div class="card tbl">
+      <table><thead><tr><th>Norma</th><th>Tipo</th><th>Ejemplo industrial</th></tr></thead><tbody id="ntb"></tbody></table>
+    </div>
+  </section>
+
+  <section id="flujo">
+    <div class="sec-head"><div class="eyebrow">Tema 4 · Laboratorio</div><h2>Control de flujo</h2>
+      <p class="hint">Regula la cantidad y la velocidad de los datos para que el transmisor no envíe más rápido de lo que el receptor puede procesar. El PLC envía un dato cada 250 ms; ajusta qué tan rápido procesa el receptor.</p></div>
+    <div class="lab">
+      <div class="card pad" style="display:grid;gap:14px">
+        <div class="svgbox"><svg viewBox="0 0 680 210" role="img" aria-label="Transmisor enviando datos a un receptor" id="fsvg">
+          <g class="dev"><rect x="20" y="60" width="130" height="80" rx="8"/><text class="b" x="85" y="95" text-anchor="middle">PLC</text><text class="sm" x="85" y="114" text-anchor="middle">Transmisor</text></g>
+          <g class="dev"><rect x="530" y="60" width="130" height="80" rx="8"/><text class="b" x="595" y="95" text-anchor="middle">PC industrial</text><text class="sm" x="595" y="114" text-anchor="middle">Receptor</text></g>
+          <line class="chan" x1="150" y1="100" x2="530" y2="100"/>
+          <text class="sm" x="340" y="80" text-anchor="middle">datos →</text>
+          <g id="hwg">
+            <line class="hwl" x1="85" y1="140" x2="85" y2="168"/><line class="hwl" x1="85" y1="168" x2="595" y2="168"/><line class="hwl" x1="595" y1="168" x2="595" y2="140"/>
+            <line class="hwl" x1="105" y1="140" x2="105" y2="190"/><line class="hwl" x1="105" y1="190" x2="575" y2="190"/><line class="hwl" x1="575" y1="190" x2="575" y2="140"/>
+            <text class="sm" x="300" y="162" text-anchor="middle">RTS: «¿Puedo pasar?»</text>
+            <text class="sm" x="380" y="206" text-anchor="middle">CTS: «Sí, pase»</text>
+            <circle id="lRTS" class="lamp on" cx="200" cy="168" r="7"/>
+            <circle id="lCTS" class="lamp on" cx="480" cy="190" r="7"/>
+          </g>
+          <g id="pkg"></g>
+          <g id="cmg"></g>
+          <g id="lsg"></g>
+        </svg></div>
+        <div style="display:grid;gap:6px"><div class="row" style="justify-content:space-between"><span class="flabel" style="margin:0">Búfer del receptor</span><span id="bufTxt" class="mono" style="font-size:13px">0 / 12</span></div><div id="buf" class="buf"></div></div>
+        <div id="fmsg" class="msg">Elige un modo y observa el búfer.</div>
+      </div>
+      <div class="card pad" style="display:grid;gap:14px">
+        <div style="display:grid;gap:6px"><span class="flabel" style="margin:0">Modo</span>
+          <div class="seg" id="fmode">
+            <button type="button" data-m="none" aria-pressed="true">Sin control</button>
+            <button type="button" data-m="hw" aria-pressed="false">Hardware</button>
+            <button type="button" data-m="sw" aria-pressed="false">Software</button>
+          </div></div>
+        <label class="slider" for="proc">El receptor procesa 1 dato cada <b id="procTxt">700 ms</b><input id="proc" type="range" min="200" max="1500" step="100" value="700"></label>
+        <div class="stats">
+          <div class="stat"><span>Enviados</span><b id="sSent">0</b></div>
+          <div class="stat"><span>Procesados</span><b id="sDone">0</b></div>
+          <div class="stat lost"><span>Perdidos</span><b id="sLost">0</b></div>
+        </div>
+        <div class="row"><button id="fReset" class="btn" type="button">Reiniciar</button></div>
+        <p class="hint" style="font-size:14.5px"><b>Hardware:</b> líneas físicas RTS y CTS, como en RS-232. <b>Software:</b> caracteres XON y XOFF por el mismo canal; el receptor manda XOFF cuando su búfer llega a 4 y XON cuando baja a 1.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="errores">
+    <div class="sec-head"><div class="eyebrow">Tema 5 · Laboratorio</div><h2>Control de errores</h2>
+      <p class="hint">El ruido, las interferencias, el mal cableado o las distancias largas pueden cambiar bits. Escribe dos bytes, envíalos por un canal con ruido y compara qué método detecta el error: bit de paridad, checksum o CRC.</p></div>
+    <div class="lab">
+      <div class="card pad" style="display:grid;gap:12px">
+        <div class="frame">
+          <div class="flabel">Transmisor · datos (haz clic en un bit para cambiarlo)</div>
+          <div id="txBits" class="bits"></div>
+        </div>
+        <div class="chk">
+          <div><span>Bit de paridad</span><b id="cP">-</b></div>
+          <div><span>Checksum (suma de bytes)</span><b id="cS">-</b></div>
+          <div><span>CRC-8</span><b id="cC">-</b></div>
+        </div>
+        <div class="row">
+          <button class="btn pri" type="button" data-n="none">Enviar sin ruido</button>
+          <button class="btn" type="button" data-n="one">Ruido: 1 bit</button>
+          <button class="btn" type="button" data-n="two">Ruido: 2 bits</button>
+          <button class="btn" type="button" data-n="comp">Errores que se compensan</button>
+        </div>
+        <div class="frame">
+          <div class="flabel">Receptor · datos recibidos</div>
+          <div id="rxBits" class="bits"></div>
+        </div>
+        <div class="tbl" style="border:1px solid var(--line);border-radius:10px">
+          <table><thead><tr><th>Método</th><th>Recibido</th><th>Calculado</th><th>Resultado</th></tr></thead><tbody id="etb"></tbody></table>
+        </div>
+        <div id="emsg" class="msg">Envía la trama para ver qué recibe el receptor.</div>
+        <div class="row"><button id="bRetx" class="btn" type="button" hidden>Solicitar retransmisión</button></div>
+      </div>
+      <div class="card pad" style="display:grid;gap:12px">
+        <div style="display:grid;gap:6px"><span class="flabel" style="margin:0">Paridad</span>
+          <div class="seg" id="pmode"><button type="button" data-p="par" aria-pressed="true">Par</button><button type="button" data-p="impar" aria-pressed="false">Impar</button></div></div>
+        <div style="display:grid;gap:8px;font-size:15px">
+          <p><b>Bit de paridad.</b> Agrega un bit para que el número de unos sea par o impar. Detecta un bit cambiado, pero no dos, y no indica cuál falló.</p>
+          <p><b>Checksum.</b> El transmisor suma los datos y envía el resultado. El receptor repite la suma; si coincide, la trama probablemente es correcta.</p>
+          <p><b>CRC.</b> Calcula un código con un algoritmo de división. Es el más robusto y lo usan muchos protocolos industriales.</p>
+          <p><b>Retransmisión.</b> Si se detecta el error, el receptor pide el mensaje otra vez. Da más confiabilidad, pero consume tiempo.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="caso">
+    <div class="sec-head"><div class="eyebrow">Caso práctico · simulación de planta</div><h2>Control de nivel en una planta de agua</h2>
+      <p class="hint">El transmisor de nivel LT-101 envía la medida del tanque al PLC por RS-485 con Modbus RTU. Con esa medida, el PLC arranca la bomba al 40 % y la para al 80 %. El cable de potencia del variador pasa por la misma bandeja que el cable de señal y mete ruido. Prueba los escenarios.</p></div>
+    <div class="row" id="scen" style="margin-bottom:12px">
+      <button class="btn" type="button" data-s="1" aria-pressed="true">1. Operación normal</button>
+      <button class="btn" type="button" data-s="2" aria-pressed="false">2. Ruido sin verificar CRC</button>
+      <button class="btn" type="button" data-s="3" aria-pressed="false">3. Ruido con CRC</button>
+      <button class="btn" type="button" data-s="4" aria-pressed="false">4. Cable separado (IEC 61918)</button>
+    </div>
+    <div class="lab">
+      <div class="col" style="display:grid;gap:14px;min-width:0">
+        <div class="card pad svgbox">
+          <svg id="plant" viewBox="0 0 720 330" role="img" aria-label="Tanque con transmisor de nivel, PLC, bomba, variador y HMI">
+            <path id="pw" class="pwr" d="M340 54 V100 H312 V300 H290" fill="none"/>
+            <g id="sparks"></g>
+            <path id="rs" class="rs" d="M135 42 H300 V165 H370" fill="none"/>
+            <text class="sm" x="200" y="34" text-anchor="middle">RS-485 · Modbus RTU</text>
+            <path class="ctlw" d="M425 190 V270 H245 V284" fill="none"/>
+            <line class="eth" x1="480" y1="165" x2="560" y2="165"/>
+            <text class="sm" x="520" y="156" text-anchor="middle">Ethernet</text>
+            <g class="pipe"><line x1="105" y1="260" x2="105" y2="284"/><line x1="170" y1="245" x2="196" y2="245"/></g>
+            <text class="sm" x="178" y="236">Consumo</text>
+            <rect class="tank" x="40" y="60" width="130" height="200" rx="6"/>
+            <rect id="water" class="water" x="42" y="160" width="126" height="98"/>
+            <line class="thr" x1="40" y1="101.2" x2="170" y2="101.2"/><line class="thr" x1="40" y1="179.6" x2="170" y2="179.6"/>
+            <text class="sm" x="176" y="105">Parada 80 %</text><text class="sm" x="176" y="184">Arranque 40 %</text>
+            <text id="lvlTxt" class="b" x="105" y="235" text-anchor="middle">60 %</text>
+            <g class="dev"><rect x="75" y="30" width="60" height="24" rx="5"/><text class="b" x="105" y="47" text-anchor="middle" style="font-size:12.5px">LT-101</text></g>
+            <line class="pipe1" x1="105" y1="54" x2="105" y2="60"/>
+            <g class="dev"><rect x="330" y="22" width="110" height="32" rx="6"/><text class="sm" x="385" y="42" text-anchor="middle">Tablero de fuerza</text></g>
+            <g class="dev"><rect x="370" y="140" width="110" height="50" rx="8"/><text class="b" x="425" y="162" text-anchor="middle">PLC</text><text id="plcRd" class="sm" x="425" y="180" text-anchor="middle">lee 60 %</text></g>
+            <g class="dev"><rect x="200" y="284" width="90" height="32" rx="6"/><text class="sm" x="245" y="304" text-anchor="middle">Variador</text></g>
+            <line class="pwr2" x1="200" y1="300" x2="121" y2="300"/>
+            <g id="pump" class="pump"><circle cx="105" cy="300" r="16"/><g class="bl"><line x1="95" y1="300" x2="115" y2="300"/><line x1="105" y1="290" x2="105" y2="310"/></g></g>
+            <text class="sm" x="60" y="304" text-anchor="end">P-101</text>
+            <g class="scr"><rect x="560" y="110" width="140" height="110" rx="8"/>
+              <text class="st" x="572" y="130">HMI · SCADA</text>
+              <text id="hmiLv" class="big" x="572" y="166">60 %</text>
+              <text id="hmiP" class="st" x="572" y="188">Bomba: parada</text>
+              <text id="hmiA" class="al" x="572" y="208"></text></g>
+            <g id="frm"></g>
+          </svg>
+        </div>
+        <div class="card pad" style="display:grid;gap:8px">
+          <div class="row" style="justify-content:space-between"><span class="flabel" style="margin:0">Tendencia en la HMI · últimos 60 s</span><span class="lgd"><span><i class="lgi" style="background:var(--accent)"></i>Nivel real</span><span><i class="lgi" style="background:var(--fail)"></i>Lo que usa el PLC</span></span></div>
+          <canvas id="trend" height="170" style="width:100%;display:block"></canvas>
+        </div>
+        <div id="cmsg" class="msg" aria-live="polite"></div>
+      </div>
+      <div class="card pad" style="display:grid;gap:14px">
+        <div class="frame"><span class="flabel" style="margin:0">Última trama recibida (hex)</span>
+          <div id="fhex" class="mono" style="font-size:16px">-</div><div class="mono" style="font-size:12px;color:var(--muted)">ID · Función · N.° bytes · Dato (2) · CRC (2)</div>
+          <div class="row"><span id="fst" class="pill mute">Esperando</span></div></div>
+        <label class="slider" for="noise"><span>Ruido en el cable de señal: <b id="noiseTxt">0 %</b> de tramas alteradas</span><input id="noise" type="range" min="0" max="60" step="5" value="0"></label>
+        <label class="slider" for="cons"><span>Consumo de agua: <b id="consTxt">medio</b></span><input id="cons" type="range" min="1" max="3" step="1" value="2"></label>
+        <div class="row">
+          <button id="tCrc" class="btn" type="button" aria-pressed="true">Verificar CRC: sí</button>
+          <button id="tSep" class="btn" type="button" aria-pressed="false">Cables separados: no</button>
+        </div>
+        <div class="stats">
+          <div class="stat"><span>Tramas</span><b id="kT">0</b></div>
+          <div class="stat"><span>Errores detectados</span><b id="kE">0</b></div>
+          <div class="stat"><span>Retransmisiones</span><b id="kR">0</b></div>
+          <div class="stat lost"><span>Datos falsos usados</span><b id="kF">0</b></div>
+          <div class="stat"><span>Arranques de bomba</span><b id="kA">0</b></div>
+          <div class="stat lost"><span>Alarmas falsas</span><b id="kX">0</b></div>
+        </div>
+        <div style="display:grid;gap:6px"><span class="flabel" style="margin:0">Registro</span><ul id="clog" class="clog"></ul></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="taller">
+    <div class="sec-head"><div class="eyebrow">Actividad</div><h2>Taller N.° 01</h2>
+      <p class="hint">Haz clic en una pregunta para ver la respuesta.</p></div>
+    <div class="row" style="margin-bottom:12px"><button id="bAll" class="btn" type="button">Mostrar todas las respuestas</button></div>
+    <div id="qs" class="qs"></div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Juan Gabriel Zapana Suaña · ELE329 Redes Industriales (e) · Semana 2</span>
+    <span>Universidad Nacional del Altiplano – Puno</span>
+  </div>
+</footer>
+
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+
+/* ---- Tema 1 ---- */
+let inter=true;
+$('bNet').addEventListener('click',()=>{
+  inter=!inter; $('net').classList.toggle('iso',!inter);
+  $('bNet').textContent=inter?'Ver equipos aislados':'Conectar en red';
+  $('netState').textContent=inter?'Sistema interconectado':'Equipos aislados';
+  $('netState').className='pill '+(inter?'ok':'warn');
+});
+
+/* ---- Tema 2 ---- */
+const mach=(x,y,id)=>`<g class="mc" id="${id}"><circle cx="${x}" cy="${y}" r="17"/><g class="sp"><line x1="${x-9}" y1="${y}" x2="${x+9}" y2="${y}"/><line x1="${x}" y1="${y-9}" x2="${x}" y2="${y+9}"/></g></g>`;
+(function(){
+  const xs=[40,92,144,216,268,320]; let s='';
+  xs.forEach((x,i)=>{ s+=`<line class="wire wc" x1="180" y1="70" x2="${x}" y2="150"/>`; });
+  s+=`<g class="ctl" id="ctrlC"><rect x="120" y="30" width="120" height="40" rx="8"/><text class="b" x="180" y="55" text-anchor="middle">Controlador</text></g>`;
+  xs.forEach((x,i)=>{ s+=mach(x,170,'mC'+i); });
+  $('svgC').innerHTML=s;
+  let d='<line class="bus" x1="20" y1="28" x2="340" y2="28"/><line class="busf" x1="20" y1="28" x2="340" y2="28"/><text class="sm" x="180" y="18" text-anchor="middle">Red de comunicación</text>';
+  const cx=[66,180,294];
+  cx.forEach((x,i)=>{ d+=`<line class="wire" x1="${x}" y1="28" x2="${x}" y2="70"/>`; d+=`<line class="wire wd${i}" x1="${x}" y1="102" x2="${x-28}" y2="153"/><line class="wire wd${i}" x1="${x}" y1="102" x2="${x+28}" y2="153"/>`; });
+  cx.forEach((x,i)=>{ d+=`<g class="ctl" id="ctrlD${i}"><rect x="${x-46}" y="70" width="92" height="32" rx="8"/><text class="b" x="${x}" y="91" text-anchor="middle">PLC ${i+1}</text></g>`; d+=mach(x-28,170,'mD'+(2*i))+mach(x+28,170,'mD'+(2*i+1)); });
+  $('svgD').innerHTML=d;
+})();
+let fC=false,fD=false;
+function renderCtl(){
+  $('ctrlC').setAttribute('class','ctl'+(fC?' dead':''));
+  document.querySelectorAll('.wc').forEach(w=>w.setAttribute('class','wire wc'+(fC?' dead':'')));
+  for(let i=0;i<6;i++) $('mC'+i).setAttribute('class','mc'+(fC?' stop':''));
+  $('stC').textContent=fC?'6 de 6 detenidas':'6 de 6 en marcha'; $('stC').className='pill '+(fC?'bad':'ok');
+  $('bC').textContent=fC?'Reparar el controlador':'Fallar el controlador';
+  $('ctrlD1').setAttribute('class','ctl'+(fD?' dead':''));
+  document.querySelectorAll('.wd1').forEach(w=>w.setAttribute('class','wire wd1'+(fD?' dead':'')));
+  $('mD2').setAttribute('class','mc'+(fD?' stop':'')); $('mD3').setAttribute('class','mc'+(fD?' stop':''));
+  $('stD').textContent=fD?'2 de 6 detenidas':'6 de 6 en marcha'; $('stD').className='pill '+(fD?'warn':'ok');
+  $('bD').textContent=fD?'Reparar el controlador 2':'Fallar el controlador 2';
+}
+$('bC').addEventListener('click',()=>{fC=!fC;renderCtl();});
+$('bD').addEventListener('click',()=>{fD=!fD;renderCtl();});
+renderCtl();
+
+/* ---- Tema 3 ---- */
+const NORMAS=[
+  ['RS-232C','serial','Una PC de mantenimiento se conecta directamente al puerto serial de un PLC para configurarlo.'],
+  ['RS-422','serial','Un encoder incremental transmite pulsos diferenciales hacia una entrada rápida de un PLC a cierta distancia.'],
+  ['RS-485','serial','Un transmisor digital de temperatura envía su medición a un PLC mediante RS-485 usando Modbus RTU.'],
+  ['TIA-568','cableado','Define criterios de cableado estructurado para conectar PLC, HMI, SCADA y switches mediante cable Ethernet.'],
+  ['IEEE 802','redes','Familia general de estándares para redes LAN/MAN; marco para tecnologías como Ethernet y WLAN.'],
+  ['IEEE 802.3','redes','Un PLC se comunica con una HMI mediante Ethernet a través de un switch.'],
+  ['IEEE 802.11','redes','Una tablet o HMI móvil accede de forma inalámbrica a la información de supervisión mediante Wi-Fi.'],
+  ['IEEE 802.1Q','redes','Se crean VLAN para separar la red de control industrial de la red administrativa.'],
+  ['IEEE 1284','otras','Una computadora industrial antigua envía información a una impresora por puerto paralelo.'],
+  ['ITU-T V.92','otras','Un módem permite acceso remoto a una instalación por línea telefónica convencional; hoy es una aplicación histórica.'],
+  ['ISO/IEC 11801','cableado','Define el cableado genérico del edificio donde se integran redes de datos, salas técnicas y conexiones Ethernet.'],
+  ['IEC 61158','industrial','Un PLC intercambia datos con dispositivos de campo mediante una tecnología industrial normalizada, como ciertos fieldbus.'],
+  ['IEC 61784','industrial','Define perfiles de comunicación industrial que usan tecnologías como PROFIBUS y PROFINET.'],
+  ['IEC 61918','cableado','Indica cómo instalar cables y redes industriales: recorridos, separación de potencia, conectores y puesta a tierra.'],
+  ['IEC 61850','industrial','Un relé de protección de una subestación intercambia información con otros IED y con el sistema de supervisión.'],
+  ['IEC 62443','seguridad','Se protege la red industrial con zonas, control de accesos, segmentación y firewalls entre control y empresa.']
+];
+const CATN={serial:'Serial',redes:'Redes',cableado:'Cableado',industrial:'Industrial',seguridad:'Seguridad',otras:'Otras'};
+let fil='todas';
+function renderNormas(){
+  const q=$('q').value.trim().toLowerCase();
+  const rows=NORMAS.filter(n=>(fil==='todas'||n[1]===fil)&&(!q||(n[0]+' '+n[2]).toLowerCase().includes(q)));
+  $('ntb').innerHTML=rows.length?rows.map(n=>`<tr><td class="n">${esc(n[0])}</td><td><span class="cat ${n[1]}">${CATN[n[1]]}</span></td><td>${esc(n[2])}</td></tr>`).join(''):'<tr><td colspan="3">No hay normas que coincidan con la búsqueda.</td></tr>';
+}
+document.querySelectorAll('#filters [data-f]').forEach(b=>b.addEventListener('click',()=>{
+  fil=b.dataset.f; document.querySelectorAll('#filters [data-f]').forEach(x=>x.setAttribute('aria-pressed',x===b?'true':'false')); renderNormas();
+}));
+$('q').addEventListener('input',renderNormas);
+renderNormas();
+
+/* ---- Tema 4: control de flujo ---- */
+const CAP=12, TX=150, RX=530, TRAV=18, CTRAV=9, DT=50;
+let F;
+function fInit(){ F={mode:F?F.mode:'none',buf:0,pk:[],cm:[],lostFx:[],sent:0,done:0,lost:0,txT:0,prT:0,xoff:false,rxOff:false}; }
+fInit();
+$('buf').innerHTML=Array.from({length:CAP},()=>'<i></i>').join('');
+function fStep(){
+  const proc=+$('proc').value;
+  const cts=F.buf<6;
+  const allowed=F.mode==='none'||(F.mode==='hw'&&cts)||(F.mode==='sw'&&!F.xoff);
+  F.txT+=DT;
+  if(F.txT>=250){ F.txT=0; if(allowed){ F.pk.push({p:0}); F.sent++; } }
+  F.pk.forEach(k=>k.p++);
+  const arr=F.pk.filter(k=>k.p>=TRAV); F.pk=F.pk.filter(k=>k.p<TRAV);
+  arr.forEach(()=>{ if(F.buf<CAP) F.buf++; else { F.lost++; F.lostFx.push({t:0}); } });
+  F.prT+=DT; if(F.prT>=proc){ F.prT=0; if(F.buf>0){ F.buf--; F.done++; } }
+  if(F.mode==='sw'){
+    if(F.buf>=4&&!F.rxOff){ F.rxOff=true; F.cm.push({p:0,k:'XOFF'}); }
+    if(F.buf<=1&&F.rxOff){ F.rxOff=false; F.cm.push({p:0,k:'XON'}); }
+  }
+  F.cm.forEach(c=>c.p++);
+  F.cm.filter(c=>c.p>=CTRAV).forEach(c=>{ F.xoff=c.k==='XOFF'; });
+  F.cm=F.cm.filter(c=>c.p<CTRAV);
+  F.lostFx.forEach(l=>l.t++); F.lostFx=F.lostFx.filter(l=>l.t<12);
+  fRender(cts);
+}
+function fRender(cts){
+  $('pkg').innerHTML=F.pk.map(k=>`<rect class="pk" x="${(TX+(RX-TX)*k.p/TRAV-9).toFixed(1)}" y="93" width="18" height="14" rx="3"/>`).join('');
+  $('cmg').innerHTML=F.cm.map(c=>{const x=RX-(RX-TX)*c.p/CTRAV; return `<g class="cm"><rect x="${(x-22).toFixed(1)}" y="116" width="44" height="18" rx="9"/><text x="${x.toFixed(1)}" y="129" text-anchor="middle">${c.k}</text></g>`;}).join('');
+  $('lsg').innerHTML=F.lostFx.map((l,i)=>{const y=100+l.t*4,x=545+(i%3)*10; return `<path class="lostx" d="M${x-6} ${y-6}L${x+6} ${y+6}M${x+6} ${y-6}L${x-6} ${y+6}"/>`;}).join('');
+  $('hwg').style.display=F.mode==='hw'?'':'none';
+  $('lCTS').setAttribute('class','lamp '+(cts?'on':'off'));
+  const cells=$('buf').children; for(let i=0;i<CAP;i++) cells[i].className=i<F.buf?'on':'';
+  $('buf').className='buf'+(F.buf>=CAP?' full':F.buf>=8?' hi':'');
+  $('bufTxt').textContent=F.buf+' / '+CAP;
+  $('sSent').textContent=F.sent; $('sDone').textContent=F.done; $('sLost').textContent=F.lost;
+  let m,k='';
+  if(F.mode==='none'){ m=F.lost?'Sin control de flujo, el PLC sigue enviando aunque el búfer esté lleno: los datos que llegan se pierden.':'El PLC envía sin preguntar. Si el receptor es más lento, el búfer se llena.'; k=F.lost?'bad':(F.buf>=8?'warn':''); }
+  else if(F.mode==='hw'){ m=cts?'CTS activo: el receptor está listo y el PLC envía.':'CTS inactivo: el receptor está ocupado y el PLC espera antes de enviar.'; k=cts?'ok':'warn'; }
+  else { m=F.xoff?'El PLC recibió XOFF y detuvo la transmisión hasta recibir XON.':'Transmitiendo. El receptor enviará XOFF si su búfer llega a 4.'; k=F.xoff?'warn':'ok'; }
+  const el=$('fmsg'); if(el.textContent!==m) el.textContent=m; el.className='msg '+k;
+}
+document.querySelectorAll('#fmode button').forEach(b=>b.addEventListener('click',()=>{
+  F.mode=b.dataset.m; F.xoff=false; F.rxOff=false; F.cm=[];
+  document.querySelectorAll('#fmode button').forEach(x=>x.setAttribute('aria-pressed',x===b?'true':'false'));
+}));
+$('proc').addEventListener('input',()=>{ $('procTxt').textContent=$('proc').value+' ms'; });
+$('fReset').addEventListener('click',()=>{ fInit(); fRender(true); });
+setInterval(fStep,DT);
+
+/* ---- Tema 5: control de errores ---- */
+let D=[1,0,1,1,0,1,0,1, 0,1,1,0,1,0,0,1], even=true, R=null, flips=[];
+const byteOf=(b,o)=>b.slice(o,o+8).reduce((a,c)=>a*2+c,0);
+const bin8=v=>v.toString(2).padStart(8,'0');
+const ones=b=>b.reduce((a,c)=>a+c,0);
+const parity=b=>{const o=ones(b)%2; return even?o:1-o;};
+const cksum=b=>(byteOf(b,0)+byteOf(b,8))&255;
+const crc8=b=>{let c=0; for(const v of [byteOf(b,0),byteOf(b,8)]){ c^=v; for(let i=0;i<8;i++) c=(c&128)?((c<<1)^7)&255:(c<<1)&255; } return c;};
+function bitsHTML(arr,editable,fl){
+  return arr.map((v,i)=>{ const cls='bit'+(v?' one':'')+(fl&&fl.includes(i)?' flip':''); const g=i===8?'<span class="gap"></span>':''; return g+(editable?`<button type="button" class="${cls}" data-i="${i}" aria-label="Bit ${i+1}: ${v}">${v}</button>`:`<span class="${cls}">${v}</span>`); }).join('');
+}
+function renderErr(){
+  $('txBits').innerHTML=bitsHTML(D,true);
+  $('cP').textContent=parity(D); $('cS').textContent=bin8(cksum(D)); $('cC').textContent=bin8(crc8(D));
+  if(!R){ $('rxBits').innerHTML='<span class="hint">Aún no se envió nada.</span>'; $('etb').innerHTML=''; $('emsg').className='msg'; $('emsg').textContent='Envía la trama para ver qué recibe el receptor.'; $('bRetx').hidden=true; return; }
+  $('rxBits').innerHTML=bitsHTML(R,false,flips);
+  const rows=[
+    ['Bit de paridad',String(parity(D)),String(parity(R)),parity(R)!==parity(D)],
+    ['Checksum',bin8(cksum(D)),bin8(cksum(R)),cksum(R)!==cksum(D)],
+    ['CRC-8',bin8(crc8(D)),bin8(crc8(R)),crc8(R)!==crc8(D)]
+  ];
+  const err=flips.length>0;
+  $('etb').innerHTML=rows.map(r=>{ const res=!err?'<span class="pill ok">Sin error</span>':(r[3]?'<span class="pill ok">Detecta el error</span>':'<span class="pill bad">No lo detecta</span>'); return `<tr><td>${r[0]}</td><td class="n">${r[1]}</td><td class="n">${r[2]}</td><td>${res}</td></tr>`; }).join('');
+  const missed=rows.filter(r=>!r[3]).map(r=>r[0]);
+  let m,k;
+  if(!err){ m='La trama llegó sin errores: los tres valores calculados coinciden con los recibidos.'; k='ok'; }
+  else if(missed.length===0){ m=`Cambiaron ${flips.length} bit${flips.length>1?'s':''}. Los tres métodos detectan el error: el receptor descarta la trama y pide retransmisión.`; k='warn'; }
+  else if(missed.length===3){ m='Ningún método detectó el error.'; k='bad'; }
+  else { m=`Cambiaron ${flips.length} bits y ${missed.join(' y ')} no ${missed.length>1?'lo detectan':'lo detecta'}. ${missed.includes('Checksum')?'Los cambios se compensan y la suma no varía. ':''}${missed.includes('Bit de paridad')?'Con dos bits cambiados la cantidad de unos sigue siendo par o impar. ':''}El CRC sí lo detecta, por eso lo usan los protocolos industriales.`; k='bad'; }
+  $('emsg').className='msg '+k; $('emsg').textContent=m;
+  $('bRetx').hidden=!err;
+}
+$('txBits').addEventListener('click',e=>{ const b=e.target.closest('[data-i]'); if(!b) return; D[+b.dataset.i]^=1; R=null; flips=[]; renderErr(); });
+function send(kind){
+  R=D.slice(); flips=[];
+  const rnd=n=>Math.floor(Math.random()*n);
+  if(kind==='one') flips=[rnd(16)];
+  else if(kind==='two'){ const a=rnd(16); let b=rnd(16); while(b===a) b=rnd(16); flips=[a,b]; }
+  else if(kind==='comp'){ const ks=[0,1,2,3,4,5,6,7].filter(k=>D[k]!==D[8+k]); if(ks.length){ const k=ks[rnd(ks.length)]; flips=[k,8+k]; } else { const a=rnd(16); let b=rnd(16); while(b===a) b=rnd(16); flips=[a,b]; } }
+  flips.forEach(i=>{ R[i]^=1; });
+  renderErr();
+}
+document.querySelectorAll('[data-n]').forEach(b=>b.addEventListener('click',()=>send(b.dataset.n)));
+$('bRetx').addEventListener('click',()=>{ send('none'); $('emsg').textContent='Retransmisión recibida sin errores. Ahora el receptor usa la información correcta.'; });
+document.querySelectorAll('#pmode button').forEach(b=>b.addEventListener('click',()=>{
+  even=b.dataset.p==='par'; document.querySelectorAll('#pmode button').forEach(x=>x.setAttribute('aria-pressed',x===b?'true':'false')); renderErr();
+}));
+renderErr();
+
+/* ---- Caso práctico: control de nivel ---- */
+const C={L:.6,Lm:.6,pump:false,crc:true,sep:false,noise:0,cons:2,t:0,kT:0,kE:0,kR:0,kF:0,kA:0,kX:0,hist:[],frames:[],lowAlarm:false,over:false,log:[]};
+const INF=0.0035, OUT=[0,0.0012,0.0018,0.0026];
+const crc16=b=>{let c=0xFFFF; for(const x of b){ c^=x; for(let i=0;i<8;i++) c=(c&1)?((c>>1)^0xA001):(c>>1); } return c;};
+const hx=v=>v.toString(16).toUpperCase().padStart(2,'0');
+const clk=()=>{const s=Math.floor(C.t/10); return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');};
+function clog(m,k){ C.log.unshift({t:clk(),m,k}); if(C.log.length>40) C.log.pop(); $('clog').innerHTML=C.log.map(e=>`<li><time>${e.t}</time><i class="k ${e.k}"></i><span>${esc(e.m)}</span></li>`).join(''); }
+const rsPath=$('rs'), rsLen=rsPath.getTotalLength();
+function makeFrame(){
+  const v=Math.round(C.L*1000);
+  const data=[0x01,0x03,0x02,(v>>8)&255,v&255], c=crc16(data);
+  const f={bytes:data.concat([c&255,(c>>8)&255]),bad:false,p:0,retx:false};
+  const pn=C.sep?C.noise*0.05:C.noise;
+  if(Math.random()*100<pn){
+    let val=(f.bytes[3]<<8)|f.bytes[4];
+    const cand=[5,6,7,8,9].filter(b=>(val>>b)&1);
+    const b=cand.length?cand[Math.floor(Math.random()*cand.length)]:9;
+    val^=(1<<b); f.bytes[3]=(val>>8)&255; f.bytes[4]=val&255; f.bad=true;
+  }
+  return f;
+}
+const pct=v=>Math.round(v*100)+' %';
+function receive(f){
+  C.kT++;
+  const ok=crc16(f.bytes.slice(0,5))===(f.bytes[5]|(f.bytes[6]<<8));
+  const val=((f.bytes[3]<<8)|f.bytes[4])/1000;
+  $('fhex').textContent=f.bytes.map(hx).join(' ');
+  if(C.crc&&!ok){
+    C.kE++; C.kR++;
+    $('fst').textContent='CRC incorrecto: trama descartada'; $('fst').className='pill bad';
+    clog('CRC incorrecto. El PLC descarta la trama y pide retransmisión.','warn');
+    const r=makeFrame(); r.retx=true; C.frames.push(r);
+    return;
+  }
+  if(!C.crc){ $('fst').textContent=f.bad?'Sin verificar: trama alterada':'Sin verificar CRC'; $('fst').className='pill '+(f.bad?'bad':'warn'); }
+  else { $('fst').textContent='CRC correcto'; $('fst').className='pill ok'; }
+  if(f.bad){ C.kF++; clog(`Dato falso usado: el PLC lee ${pct(val)} y el nivel real es ${pct(C.L)}.`,'bad'); }
+  C.Lm=val;
+  if(C.Lm<0.40&&!C.pump){ C.pump=true; C.kA++; clog(f.bad?`Arranque falso de la bomba con el tanque al ${pct(C.L)}.`:'El PLC arranca la bomba: el nivel bajó del 40 %.',f.bad?'bad':'ok'); }
+  else if(C.Lm>0.80&&C.pump){ C.pump=false; clog('El PLC para la bomba: el nivel pasó el 80 %.','info'); }
+  const low=C.Lm<0.15;
+  if(low&&!C.lowAlarm){ if(C.L>=0.15){ C.kX++; clog('Alarma falsa de nivel muy bajo en la HMI.','bad'); } }
+  C.lowAlarm=low;
+}
+const cv=$('trend');
+function drawTrend(){
+  const dpr=window.devicePixelRatio||1, W=cv.clientWidth||600, H=170;
+  if(cv.width!==Math.round(W*dpr)){ cv.width=Math.round(W*dpr); cv.height=Math.round(H*dpr); }
+  const g=cv.getContext('2d'); g.setTransform(dpr,0,0,dpr,0,0); g.clearRect(0,0,W,H);
+  const cs=getComputedStyle(document.documentElement), col=n=>cs.getPropertyValue(n).trim();
+  const L=40,R=10,T=8,B=20,pw=W-L-R,ph=H-T-B, y=v=>T+ph*(1-v);
+  g.font='11px '+col('--mono'); g.fillStyle=col('--muted'); g.strokeStyle=col('--line-strong'); g.lineWidth=1;
+  [0,0.4,0.8,1].forEach(v=>{ g.beginPath(); g.setLineDash(v===0.4||v===0.8?[4,4]:[]); g.moveTo(L,y(v)); g.lineTo(W-R,y(v)); g.stroke(); g.fillText(Math.round(v*100)+'%',4,y(v)+4); });
+  g.setLineDash([]); g.fillText('-60 s',L,H-4); g.fillText('ahora',W-R-36,H-4);
+  const n=C.hist.length; if(n<2) return;
+  const x=i=>L+pw*(i+600-n)/599;
+  const line=(k,c,w)=>{ g.strokeStyle=c; g.lineWidth=w; g.beginPath(); C.hist.forEach((h,i)=>{ const X=x(i),Y=y(h[k]); if(i) g.lineTo(X,Y); else g.moveTo(X,Y); }); g.stroke(); };
+  line(1,col('--fail'),1.6); line(0,col('--accent'),2.6);
+}
+function cRender(){
+  const h=196*C.L, w=$('water'); w.setAttribute('y',(258-h).toFixed(1)); w.setAttribute('height',h.toFixed(1));
+  $('lvlTxt').textContent=pct(C.L); $('plcRd').textContent='lee '+pct(C.Lm); $('hmiLv').textContent=pct(C.Lm);
+  $('hmiP').textContent='Bomba: '+(C.pump?'en marcha':'parada'); $('hmiA').textContent=C.lowAlarm?'ALARMA nivel muy bajo':'';
+  $('pump').setAttribute('class','pump'+(C.pump?' on':''));
+  $('frm').innerHTML=C.frames.map(f=>{ const pt=rsPath.getPointAtLength(f.p*rsLen); return `<g class="fr ${f.bad?'bad':'good'}"><rect x="${(pt.x-20).toFixed(1)}" y="${(pt.y-9).toFixed(1)}" width="40" height="18" rx="9"/><text x="${pt.x.toFixed(1)}" y="${(pt.y+4).toFixed(1)}" text-anchor="middle">${f.retx?'RTX':'MB'}</text></g>`; }).join('');
+  const sp=C.noise>0&&!C.sep&&Math.random()<0.4+C.noise/100;
+  $('sparks').innerHTML=sp?[118,140,158].map(y=>`<polyline class="spk" points="301,${y} 304,${y-5} 307,${y+3} 311,${y-4}"/>`).join(''):'';
+  ['kT','kE','kR','kF','kA','kX'].forEach(k=>{ $(k).textContent=C[k]; });
+  if(C.t%2===0) drawTrend();
+}
+function cStep(){
+  C.t++;
+  C.L=Math.max(0,Math.min(1,C.L+(C.pump?INF:0)-OUT[C.cons]));
+  if(C.L>=0.97&&!C.over){ C.over=true; clog('Rebose: el tanque llegó al 97 %.','bad'); }
+  if(C.L<0.9) C.over=false;
+  if(C.t%5===0) C.frames.push(makeFrame());
+  C.frames.forEach(f=>{ f.p+=1/6; });
+  const arr=C.frames.filter(f=>f.p>=1); C.frames=C.frames.filter(f=>f.p<1);
+  arr.forEach(receive);
+  C.hist.push([C.L,C.Lm]); if(C.hist.length>600) C.hist.shift();
+  cRender();
+}
+const CONSN=['','bajo','medio','alto'];
+function syncCtl(){
+  $('noiseTxt').textContent=C.noise+' %'; $('noise').value=C.noise;
+  $('consTxt').textContent=CONSN[C.cons];
+  $('tCrc').setAttribute('aria-pressed',C.crc?'true':'false'); $('tCrc').textContent='Verificar CRC: '+(C.crc?'sí':'no');
+  $('tSep').setAttribute('aria-pressed',C.sep?'true':'false'); $('tSep').textContent='Cables separados: '+(C.sep?'sí':'no');
+  $('pw').setAttribute('d',C.sep?'M440 38 H708 V322 H245 V316':'M340 54 V100 H312 V300 H290');
+}
+const SC={
+  1:[0,true,false,'ok','Operación normal: cada trama llega bien. El PLC arranca la bomba al 40 % y la para al 80 %. La línea roja (lo que usa el PLC) coincide con el nivel real.'],
+  2:[45,false,false,'bad','El cable de potencia del variador corre junto al RS-485 y altera tramas. Sin verificar el CRC, el PLC usa datos falsos: la HMI muestra caídas que no existen, la bomba arranca sin necesidad y aparecen alarmas falsas.'],
+  3:[45,true,false,'ok','Mismo ruido, pero el PLC verifica el CRC de Modbus RTU. Detecta cada trama alterada, la descarta y pide retransmisión. El control sigue estable, a costa de más tráfico en el bus.'],
+  4:[45,true,true,'ok','Se separó el cable de señal del cable de potencia, como indica IEC 61918. Casi no llegan tramas alteradas: el problema se resolvió en su origen.']
+};
+function setScen(k){
+  const s=SC[k]; C.noise=s[0]; C.crc=s[1]; C.sep=s[2]; syncCtl();
+  $('cmsg').textContent=s[4]; $('cmsg').className='msg '+s[3];
+  document.querySelectorAll('#scen [data-s]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.s===String(k)?'true':'false'));
+  clog('Escenario '+k+' activado.','info');
+}
+function manual(){
+  document.querySelectorAll('#scen [data-s]').forEach(b=>b.setAttribute('aria-pressed','false'));
+  const ef=C.sep?C.noise*0.05:C.noise;
+  $('cmsg').textContent=`Ajuste manual: ${Math.round(ef)} % de tramas alteradas${C.sep?' (cables separados)':''}, CRC ${C.crc?'verificado':'sin verificar'}.`;
+  $('cmsg').className='msg '+(ef>0&&!C.crc?'bad':'ok');
+}
+document.querySelectorAll('#scen [data-s]').forEach(b=>b.addEventListener('click',()=>setScen(+b.dataset.s)));
+$('noise').addEventListener('input',()=>{ C.noise=+$('noise').value; syncCtl(); manual(); });
+$('cons').addEventListener('input',()=>{ C.cons=+$('cons').value; syncCtl(); });
+$('tCrc').addEventListener('click',()=>{ C.crc=!C.crc; syncCtl(); manual(); });
+$('tSep').addEventListener('click',()=>{ C.sep=!C.sep; syncCtl(); manual(); });
+setScen(1);
+setInterval(cStep,100);
+
+/* ---- Taller ---- */
+const QA=[
+  ['¿Qué diferencia existe entre una norma de facto y una norma de iure?','La norma de facto nace de un sistema creado por una empresa que se impone en el mercado y termina aceptándose. La norma de iure la promulga oficialmente un gobierno o un organismo de normalización, como ISO o IEC.'],
+  ['¿Cuál es la función principal de la ISO en el ámbito de la normalización?','La ISO genera normas para todas las áreas y coordina las normas creadas por las organizaciones regionales.'],
+  ['¿Qué organismo internacional está especializado principalmente en normas del área eléctrica y electrotécnica?','La IEC (International Electrotechnical Commission).'],
+  ['¿Qué función cumple la UIT/ITU dentro de las telecomunicaciones?','Adopta normas que regulan el uso del espectro radioeléctrico, en el ámbito espacial y terrestre. Reúne a más de 150 países y se divide en ITU-T (telecomunicaciones), ITU-R (radiocomunicación) e ITU-D (desarrollo).'],
+  ['¿Qué organismo está relacionado con estándares como RS-232?','La EIA (Electronics Industries Association), que define estándares de transmisión de señales eléctricas.'],
+  ['¿Qué importancia tiene la IEEE en el desarrollo de redes y comunicaciones?','Elaboró recomendaciones sobre comunicaciones industriales y redes que terminaron convirtiéndose en normas de facto, como IEEE 802.3 (Ethernet) e IEEE 802.11 (Wi-Fi).'],
+  ['¿Qué se entiende por norma física en una comunicación industrial?','Es la que define las características eléctricas y mecánicas del medio de transmisión: niveles de tensión, tipo de señal, conectores, cableado, distancia y velocidad. Por ejemplo, RS-232 o RS-485.'],
+  ['¿Qué diferencia existe entre una interfaz física, como RS-485, y un protocolo, como Modbus RTU?','RS-485 define cómo viajan las señales eléctricas por el cable (señal diferencial, varios equipos en el mismo bus). Modbus RTU define el formato y el significado de los mensajes: dirección del equipo, función, datos y CRC. Modbus RTU viaja sobre RS-485.'],
+  ['¿Para qué se utiliza una técnica de control de flujo?','Para regular la cantidad y la velocidad de los datos, de modo que el transmisor no envíe más rápido de lo que el receptor puede procesar. Así se evitan pérdida de datos, saturación, errores y retransmisiones.'],
+  ['¿Qué diferencia existe entre el control de flujo por hardware y por software?','Por hardware se usan líneas físicas adicionales, como RTS y CTS, para indicar si un equipo está listo. Por software no hacen falta líneas extra: se envían caracteres de control, como XON y XOFF, por el mismo canal.'],
+  ['¿Qué función cumplen las señales RTS y CTS en una comunicación?','RTS (Request To Send): el equipo A pide permiso para transmitir. CTS (Clear To Send): el equipo B responde que está preparado para recibir.'],
+  ['¿Qué finalidad tienen las técnicas de control de errores?','Detectar si los datos se alteraron por ruido, interferencias, mal cableado, distancia o conectores defectuosos, y corregirlos o pedirlos otra vez. Buscan que los datos recibidos sean iguales a los enviados.'],
+  ['¿En qué consiste el bit de paridad y qué tipo de errores permite detectar?','Es un bit adicional que hace que el número de unos sea par o impar. Detecta errores en un número impar de bits, por ejemplo un bit cambiado. No detecta dos bits cambiados y no indica qué bit falló.'],
+  ['¿Qué diferencia existe entre bit de paridad, checksum y CRC?','La paridad agrega un solo bit y es la más simple, pero la menos segura. El checksum suma los datos y envía el resultado; detecta más errores, pero falla si los cambios se compensan. El CRC usa un algoritmo de división polinómica; es el más robusto y lo usan muchos protocolos industriales.'],
+  ['En una red industrial se detecta que los datos recibidos contienen un error. ¿Qué acciones podría realizar el sistema para evitar utilizar información incorrecta?','Descartar la trama, pedir la retransmisión del mensaje, registrar el error y generar una alarma. Si el error se repite, puede usar el último valor válido o pasar a un estado seguro. También conviene revisar el cableado, el blindaje, la puesta a tierra y las terminaciones.']
+];
+$('qs').innerHTML=QA.map((q,i)=>`<details><summary><span class="qn">${i+1}.</span><span>${esc(q[0])}</span></summary><div class="ans">${esc(q[1])}</div></details>`).join('');
+let allOpen=false;
+$('bAll').addEventListener('click',()=>{ allOpen=!allOpen; document.querySelectorAll('#qs details').forEach(d=>d.open=allOpen); $('bAll').textContent=allOpen?'Ocultar las respuestas':'Mostrar todas las respuestas'; });
+})();
+</script>
+
+</body>
+</html>
